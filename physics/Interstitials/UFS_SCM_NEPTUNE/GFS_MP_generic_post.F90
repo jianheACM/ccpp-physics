@@ -17,12 +17,12 @@
 !!
       subroutine GFS_MP_generic_post_run(                                                                                 &
         im, levs, kdt, tend_opt_mp, nrcm, nncl, ntcw, ntrac, imp_physics, imp_physics_gfdl, imp_physics_thompson,         &
-        imp_physics_tempo, imp_physics_nssl, imp_physics_mg, imp_physics_fer_hires, cal_pre, cplflx, cplchm, cpllnd,      &
+        imp_physics_tempo, imp_physics_nssl, imp_physics_mg, imp_physics_fer_hires, cal_pre, cplflx,cplchm,cplchp, cpllnd,&
         progsigma, con_g, rhowater, rainmin, dtf, frain, rainc, rain1, rann, xlat, xlon, ten_t, ten_u, ten_v, ten_q, dudt,&
         dvdt, dtdt, dqdt, gt0, gu0, gv0, gq0, prsl, prsi, phii, tsfc, ice, phil, htop,                                    &
         refl_10cm, imfshalcnv,imfshalcnv_gf,imfdeepcnv,imfdeepcnv_gf,imfdeepcnv_samf, con_t0c, snow, graupel,             &
-        rain0, ice0, snow0, graupel0, del, rain, domr_diag, domzr_diag, domip_diag, doms_diag, tprcp, srflag, sr,         &
-        cnvprcp, totprcp, totice, totsnw, totgrp, cnvprcpb, totprcpb, toticeb, totsnwb, totgrpb, rain_cpl, rainc_cpl,     &
+        rain0, ice0, snow0, graupel0, del, rain, domr_diag, domzr_diag, domip_diag, doms_diag, tprcp, srflag, sr,cnvprcp, &
+        totprcp, totice, totsnw, totgrp, cnvprcpb, totprcpb, toticeb, totsnwb, totgrpb, rain_cpl, rain_cplchp, rainc_cpl, &
         snow_cpl, pwat, frzr, frzrb, frozr, frozrb, tsnowp, tsnowpb, rhonewsn1, exticeden,                                &
         drain_cpl, dsnow_cpl, lsm, lsm_ruc, lsm_noahmp, raincprv, rainncprv, iceprv, snowprv,                             &
         graupelprv, draincprv, drainncprv, diceprv, dsnowprv, dgraupelprv, dtp, num_diag_buckets,                         &
@@ -37,7 +37,7 @@
       integer, intent(in) :: im, levs, kdt, tend_opt_mp, nrcm, nncl, ntcw, ntrac, num_dfi_radar, index_of_process_dfi_radar
       integer, intent(in) :: imp_physics, imp_physics_gfdl, imp_physics_thompson, imp_physics_mg, imp_physics_fer_hires
       integer, intent(in) :: imp_physics_nssl, iopt_lake_clm, iopt_lake, lkm, imp_physics_tempo
-      logical, intent(in) :: cal_pre, lssav, ldiag3d, qdiag3d, cplflx, cplchm, cpllnd, progsigma, exticeden
+      logical, intent(in) :: cal_pre, lssav, ldiag3d, qdiag3d, cplflx, cplchm, cplchp, cpllnd, progsigma, exticeden
       integer, intent(in) :: index_of_temperature,index_of_process_mp,use_lake_model(:)
       integer, intent(in) :: imfshalcnv,imfshalcnv_gf,imfdeepcnv,imfdeepcnv_gf,imfdeepcnv_samf
       integer, intent(in) :: num_diag_buckets
@@ -67,7 +67,7 @@
                                                                 srflag, cnvprcp, totprcp, totice, totsnw, totgrp, &
                                                                 toticeb, totsnwb, totgrpb, pwat
       real(kind=kind_phys), dimension(:,:),    intent(inout) :: cnvprcpb, totprcpb
-      real(kind=kind_phys), dimension(:),      intent(inout), optional :: rain_cpl, rainc_cpl, snow_cpl
+      real(kind=kind_phys), dimension(:),      intent(inout), optional :: rain_cpl, rain_cplchp, rainc_cpl, snow_cpl
 
       real(kind=kind_phys), dimension(:,:,:),   intent(inout), optional :: dtend
       integer,         dimension(:,:), intent(in)    :: dtidx
@@ -572,7 +572,7 @@
          enddo
       endif
 
-      if (cplflx .or. cplchm .or. cpllnd) then
+      if (cplflx .or. cplchm .or. cplchp .or. cpllnd) then
         do i = 1, im
           dsnow_cpl(i)= max(zero, rain(i) * srflag(i))
           drain_cpl(i)= max(zero, rain(i) - dsnow_cpl(i))
@@ -581,7 +581,13 @@
         enddo
       endif
 
-      if (cplchm .or. cpllnd) then
+      if (cplchp) then
+        do i = 1, im
+          rain_cplchp(i) = rain_cpl(i) + snow_cpl(i)
+        enddo
+      endif
+
+      if (cplchm .or. cplchp .or. cpllnd) then
         do i = 1, im
           rainc_cpl(i) = rainc_cpl(i) + rainc(i)
         enddo
