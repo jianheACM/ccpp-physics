@@ -22,11 +22,13 @@
                imp_physics_nssl, imp_physics_tempo,                     &
                prsl, prslk, rhcbot,rhcpbl, rhctop, rhcmax, islmsk,      &
                work1, work2, kpbl, kinver, ras, me,                     &
-               clw, rhc, save_qc, save_qi, save_tcp, errmsg, errflg)
+               clw, rhc, save_qc, save_qi, save_tcp, pfl_cnv, errmsg, errflg)
 
       use machine, only: kind_phys
 
       implicit none
+
+      real(kind=kind_phys), intent(out), optional :: pfl_cnv(:,:)
 
       ! interface variables
       logical, intent(in)     :: otsptflag(:)!  on/off switch for tracer transport (size ntrac)
@@ -73,6 +75,8 @@
       ! Initialize CCPP error handling variables
       errmsg = ''
       errflg = 0
+
+      if (present(pfl_cnv)) pfl_cnv = 0._kind_phys
 
       ! In case of using prognostic updraft area fraction, initialize area fraction here
       ! since progsigma_calc is called from both deep and shallow schemes.

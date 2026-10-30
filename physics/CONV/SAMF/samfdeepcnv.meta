@@ -818,6 +818,16 @@
   type = real
   kind = kind_phys
   intent = in
+[pfl_cnv]
+  standard_name = downward_mass_flux_of_convective_precipitation
+  long_name = downward total convective precipitation mass flux at interfaces
+  units = kg m-2 s-1
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+  optional = True
+  active = (flag_for_chemistry_package_coupling)
 [errmsg]
   standard_name = ccpp_error_message
   long_name = error message for error handling in CCPP

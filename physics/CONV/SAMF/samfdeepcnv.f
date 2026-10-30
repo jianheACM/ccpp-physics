@@ -86,15 +86,19 @@
      &    do_ca, ca_closure, ca_entr, ca_trigger, nthresh,ca_deep,      &
      &    rainevap,sigmain,sigmaout,omegain,omegaout,betadcu,betamcu,   &
      &    betascu,maxMF,do_mynnedmf,sigmab_coldstart,cat_adj_deep,      &
-     &    errmsg,errflg)
+     &    pfl_cnv, errmsg,errflg)
 
 !
       use machine , only : kind_phys
       use funcphys , only : fpvs
 
       implicit none
+! Optional total (liquid-equivalent) convective precipitation flux.
+! Interface 1 is the surface; interface km+1 is the model top.
+      real(kind=kind_phys), intent(inout), optional :: pfl_cnv(:,:)
 !
       integer, intent(in)  :: im, km, nn, itc, ntc, ntk, ntr, ncloud
+      real(kind=kind_phys) :: precip_cnv(im,km+1)
       integer, intent(in)  :: islimsk(:)
       real(kind=kind_phys), intent(in) :: cliq, cp, cvap, eps, epsm1,   &
      &   fv, grav, hvap, rd, rv, t0c
@@ -332,6 +336,7 @@ c    &            .743,.813,.886,.947,1.138,1.377,1.896/
       ! Initialize CCPP error handling variables
       errmsg = ''
       errflg = 0
+      precip_cnv = 0._kind_phys
 
       gravinv = 1./grav
       invdelt = 1./delt
@@ -3453,6 +3458,11 @@ c
               deltbar(i) = deltbar(i) + deltv(i) * tem1
             endif
           endif
+! rn is water-equivalent depth in m over dt2, not air mass.
+          if (present(pfl_cnv)) then
+            precip_cnv(i,k) = max(0._kind_phys,rn(i))           &
+     &                       * 1000._kind_phys / dt2
+          endif
         enddo
       enddo
 
@@ -3706,6 +3716,18 @@ c
       ten_u = (new_u1 - u1)/delt 
       ten_v = (new_v1 - v1)/delt
       dqtr  = (new_qtr - qtr)/delt
+
+! Add this scheme's profile to the shared deep+shallow diagnostic.
+! GFS_suite_interstitial_3 resets pfl_cnv before the convection calls.
+      if (present(pfl_cnv)) then
+        do i=1,im
+          if (cnvflg(i) .and. rn(i) > 0._kind_phys) then
+            precip_cnv(i,1) = rn(i)*1000._kind_phys/dt2
+            pfl_cnv(i,1:km+1) = pfl_cnv(i,1:km+1)              &
+     &                        + precip_cnv(i,1:km+1)
+          endif
+        enddo
+      endif
 
       return
       end subroutine samfdeepcnv_run

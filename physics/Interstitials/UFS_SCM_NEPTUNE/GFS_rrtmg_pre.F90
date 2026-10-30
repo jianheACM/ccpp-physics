@@ -43,7 +43,7 @@
         kd, kt, kb, mtopa, mbota, raddt, tsfg, tsfa, de_lgth, alb1d, delp, dz, & !output from here and below
         plvl, plyr, tlvl, tlyr, qlyr, olyr, gasvmr_co2, gasvmr_n2o, gasvmr_ch4,&
         gasvmr_o2, gasvmr_co, gasvmr_cfc11, gasvmr_cfc12, gasvmr_cfc22,        &
-        gasvmr_ccl4,  gasvmr_cfc113, aerodp,ext550, clouds6, clouds7, clouds8, &
+        gasvmr_ccl4,  gasvmr_cfc113, aerodp,ext550,aerosol_ext_1um, clouds6, clouds7, clouds8, &
         clouds9, cldsa, cldfra, cldfra2d, lwp_ex,iwp_ex, lwp_fc,iwp_fc,        &
         faersw1, faersw2, faersw3, faerlw1, faerlw2, faerlw3, alpha, rrfs_sd,  &
         aero_dir_fdb, fdb_coef, spp_wts_rad, spp_rad, ico2, ozphys, tempo_cfg, &
@@ -67,7 +67,7 @@
      &                                     adjust_cloudFinal
 
       use module_radsw_parameters,   only: topfsw_type, sfcfsw_type, &
-     &                                     profsw_type, NBDSW
+     &                                     profsw_type, NBDSW, wvnum1, wvnum2
       use module_radlw_parameters,   only: topflw_type, sfcflw_type, &
      &                                     proflw_type, NBDLW
       use surface_perturbation,      only: cdfnor,ppfbet
@@ -215,6 +215,10 @@
                                                            gasvmr_cfc113
       real(kind=kind_phys), dimension(:,:), intent(out) :: aerodp
       real(kind=kind_phys), dimension(:,:), intent(out) :: ext550
+      ! Retain the last SW evaluation on skipped or LW-only radiation calls.
+      ! Output uses physical model layers, ordered from surface to top.
+      real(kind_phys), optional, intent(inout) :: aerosol_ext_1um(:,:)
+      integer :: ib_ext_1um, kr_ext, km_ext
       real(kind=kind_phys), dimension(:,:), intent(out) :: clouds6,   &
                                                            clouds7,   &
                                                            clouds8,   &
@@ -691,6 +695,53 @@
                    tracer1, aer_nm, xlon, xlat, IM, LMK, LMP,&
                    lsswr, lslwr, iaermdl, iaerflg, top_at_1, con_pi,  &
                    con_rd, con_g, faersw, faerlw, aerodp, ext550, errflg, errmsg)         !  ---  outputs
+
+! Export the unscaled total aerosol optical depth per geometric layer depth.
+! setaer has already added any enabled stratospheric volcanic contribution.
+! RRTMG band containing 10000 cm-1 spans approximately 0.78--1.24 um.
+      if (present(aerosol_ext_1um) .and. lsswr) then
+        if (mod(iaerflg,10) <= 0) then
+          errmsg = 'Total aerosol extinction export requires SW aerosol optics enabled'
+          errflg = 1
+          return
+        endif
+        if (LM /= levs) then
+          errmsg = 'Aerosol extinction export requires lm=levs; reduced grids need remapping'
+          errflg = 1
+          return
+        endif
+        if (size(aerosol_ext_1um,1) /= IM .or. &
+            size(aerosol_ext_1um,2) /= levs) then
+          errmsg = 'Aerosol extinction export requires shape (im,levs)'
+          errflg = 1
+          return
+        endif
+        ib_ext_1um = 0
+        do j = 1, NBDSW
+          if (wvnum1(j) <= 10000._kind_phys .and. &
+              wvnum2(j) >= 10000._kind_phys) ib_ext_1um = j
+        enddo
+        if (ib_ext_1um == 0) then
+          errmsg = 'RRTMG has no shortwave band containing 1 um'
+          errflg = 1
+          return
+        endif
+        do k = 1, LM
+          kr_ext = k+kd   ! skip the synthetic top layer, if present
+          km_ext = k
+          if (top_at_1) km_ext = LM-k+1
+          do i = 1, IM
+            if (dz(i,kr_ext) <= 0._kind_phys) then
+              errmsg = 'Aerosol extinction export requires positive layer thickness'
+              errflg = 1
+              return
+            endif
+            aerosol_ext_1um(i,km_ext) = &
+                max(0._kind_phys,faersw(i,kr_ext,ib_ext_1um,1)) / &
+                (1000._kind_phys*dz(i,kr_ext)) ! dz is in km; extinction in m-1
+          enddo
+        enddo
+      endif
 
 ! CCPP
       do j = 1,NBDSW

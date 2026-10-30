@@ -1347,6 +1347,16 @@
   type = real
   kind = kind_phys
   intent = out
+[aerosol_ext_1um]
+  standard_name = total_aerosol_extinction_coefficient_near_1um
+  long_name = total aerosol extinction coefficient in the shortwave band containing 1 um
+  units = m-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+  optional = True
+  active = (flag_for_am4_chemistry)
 [ext550]
   standard_name = aerosol_optical_depth_at_550nm
   long_name = 3d optical extinction for total aerosol species
