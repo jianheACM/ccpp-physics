@@ -2463,7 +2463,7 @@ c
           endif
 ! rn is water-equivalent depth in m over dt2, not air mass.
           if (present(pfl_cnv)) then
-            precip_cnv(i,k) = max(0._kind_phys,rn(i))           &
+            precip_cnv(i,k) = max(0._kind_phys,rn(i))           
      &                       * 1000._kind_phys / dt2
           endif
         enddo
@@ -2629,7 +2629,7 @@ c
 ! Retain shallow virga: interior flux can exist with zero sfc rain.
           if (cnvflg(i)) then
             precip_cnv(i,1) = rn(i)*1000._kind_phys/dt2
-            pfl_cnv(i,1:km+1) = pfl_cnv(i,1:km+1)              &
+            pfl_cnv(i,1:km+1) = pfl_cnv(i,1:km+1)              
      &                        + precip_cnv(i,1:km+1)
           endif
         enddo
