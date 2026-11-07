@@ -67,7 +67,7 @@ list(REMOVE_DUPLICATES SCHEMES)
 # Shared CATChem metadata includes this AM4-only utility module.
 if(NOT AM4_CHEM)
   list(FILTER SCHEMES EXCLUDE REGEX
-       "/CATChem/src/gfdlam4chem/mo_chem_utls[.]F90$")
+       "/CATChem/src/gfdlam4chem/(mo_chem_utls|gfdl_wetdep_mod|gfdl_drydep_mod)[.]F90$")
 endif()
 
 # Set the sources: physics scheme caps
