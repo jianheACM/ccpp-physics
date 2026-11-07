@@ -64,6 +64,12 @@ else(SCHEMES)
 endif(SCHEMES)
 list(REMOVE_DUPLICATES SCHEMES)
 
+# Shared CATChem metadata includes this AM4-only utility module.
+if(NOT AM4_CHEM)
+  list(FILTER SCHEMES EXCLUDE REGEX
+       "/CATChem/src/gfdlam4chem/mo_chem_utls[.]F90$")
+endif()
+
 # Set the sources: physics scheme caps
 set(CAPS $ENV{CCPP_CAPS})
 if(CAPS)
