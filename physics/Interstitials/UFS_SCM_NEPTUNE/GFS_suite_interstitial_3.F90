@@ -15,6 +15,9 @@
                first_time_step, restart,                                &
                satmedmf, trans_trac, do_shoc, ltaerosol, ntrac, ntcw,   &
                ntiw, ntclamt, ntrw, ntsw, ntrnc, ntsnc, ntgl, ntgnc,    &
+               cplghg, ntts1mmr, ntts2mmr, ntts3mmr, ntts4mmr, con_g,   &
+               qv_in,qc_in,qi_in,qs_in,qr_in,qg_in, &
+               save_ts1col, save_ts2col, save_ts3col, save_ts4col,      &
                xlon, xlat, gt0, gq0, sigmain,sigmaout,qmicro,           &
                omegain,omegaout,imp_physics, imp_physics_mg,            &
                imp_physics_zhao_carr, imp_physics_zhao_carr_pdf,        &
@@ -46,13 +49,18 @@
       integer,              dimension(:,:),             intent(in) :: dtidx
       real,                 dimension(:,:),            intent(out) :: save_lnc, save_inc
 
-      real(kind=kind_phys), intent(in   )                   :: rhcbot, rhcmax, rhcpbl, rhctop
+      real(kind=kind_phys), intent(in   )                   :: rhcbot, rhcmax, rhcpbl, rhctop, con_g
       real(kind=kind_phys), intent(in   ), dimension(:)     :: work1, work2
       real(kind=kind_phys), intent(in   ), dimension(:,:)   :: prsl, prslk
       real(kind=kind_phys), intent(in   ), dimension(:,:)   :: prsi
       real(kind=kind_phys), intent(in   ), dimension(:)     :: xlon, xlat
       real(kind=kind_phys), intent(in   ), dimension(:,:)   :: gt0
       real(kind=kind_phys), intent(in   ), dimension(:,:,:) :: gq0
+
+      logical,              intent(in   )                   :: cplghg
+      integer,              intent(in   )                   :: ntts1mmr,ntts2mmr,ntts3mmr,ntts4mmr
+      real(kind=kind_phys), intent(inout   ), dimension(:)  :: save_ts1col,save_ts2col,save_ts3col,save_ts4col
+      real(kind=kind_phys), intent(inout), dimension(:,:)   :: qv_in,qc_in,qi_in,qs_in,qr_in,qg_in
 
       real(kind=kind_phys), intent(inout   ), dimension(:,:), optional :: sigmain, omegain
       real(kind=kind_phys), intent(inout   ), dimension(:,:), optional :: sigmaout, qmicro, omegaout
@@ -69,6 +77,7 @@
       integer :: i,k,n,tracers,kk
       real(kind=kind_phys) :: tem, tem1, tem2
       real(kind=kind_phys), dimension(im) :: tx1, tx2, tx3, tx4
+      real(kind=kind_phys), dimension(im,levs) :: delp
 
       !real(kind=kind_phys),parameter :: slope_mg = 0.02, slope_upmg = 0.04,  &
       !                   turnrhcrit = 0.900, turnrhcrit_upper = 0.150
@@ -247,6 +256,29 @@
          if(dtidx(100+ntinc,index_of_process_conv_trans)>0) then
             save_inc = gq0(:,:,ntinc)
          endif
+      endif
+
+      if (cplghg) then
+         do k = 1, levs
+           do i = 1, im
+             delp(i,k) = abs(prsi(i,k) - prsi(i,k+1))
+           enddo
+         enddo
+ 
+         save_ts1col(:) = sum(gq0(:,:,ntts1mmr)*delp(:,:)/con_g,2)
+         save_ts2col(:) = sum(gq0(:,:,ntts2mmr)*delp(:,:)/con_g,2)
+         save_ts3col(:) = sum(gq0(:,:,ntts3mmr)*delp(:,:)/con_g,2)
+         save_ts4col(:) = sum(gq0(:,:,ntts4mmr)*delp(:,:)/con_g,2)
+
+         if (ntcw > 0 ) then
+         qv_in = gq0(:,:,1)
+         qi_in = gq0(:,:,ntiw)  
+         qc_in = gq0(:,:,ntcw)
+         qs_in = gq0(:,:,ntsw)
+         qr_in = gq0(:,:,ntrw)
+         qg_in = gq0(:,:,ntgl)
+         end if
+
       endif
 
     end subroutine GFS_suite_interstitial_3_run

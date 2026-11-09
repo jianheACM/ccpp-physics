@@ -49,6 +49,13 @@
   dimensions = ()
   type = logical
   intent = in
+[cplghg]
+  standard_name = flag_for_ghg_coupling
+  long_name = flag controlling cplghg collection (default off)
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = in
 [gu0]
   standard_name = x_wind_of_new_state
   long_name = zonal wind updated by physics

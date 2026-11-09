@@ -154,6 +154,13 @@
   dimensions = ()
   type = integer
   intent = in
+[trans_ghg]
+  standard_name = flag_for_ghg_convective_transport_and_PBL_diffusion
+  long_name = flag for ghg convective transport and PBL diffusion
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = in
 [nqrimef]
   standard_name = index_of_mass_weighted_rime_factor_in_tracer_concentration_array
   long_name = tracer index for mass weighted rime factor
@@ -290,6 +297,13 @@
 [imp_physics_nssl]
   standard_name = identifier_for_nssl_microphysics_scheme
   long_name = choice of NSSL 2-moment microphysics scheme
+  units = flag
+  dimensions = ()
+  type = integer
+  intent = in
+[imp_physics_no]
+  standard_name = identifier_for_no_microphysics_scheme
+  long_name = choice of no microphysics scheme
   units = flag
   dimensions = ()
   type = integer

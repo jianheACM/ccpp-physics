@@ -11,10 +11,11 @@
 !!
       subroutine GFS_PBL_generic_pre_run (im, levs, nvdiff, ntrac, rtg_ozone_index,      &
         ntqv, ntcw, ntiw, ntrw, ntsw, ntlnc, ntinc, ntrnc, ntsnc, ntgnc,                 &
-        ntwa, ntia, ntgl, ntoz, ntke, ntkev, nqrimef, trans_aero, ntchs, ntchm,          &
+        ntwa, ntia, ntgl, ntoz, ntke, ntkev, nqrimef, trans_aero, trans_ghg, ntchs, ntchm,          &
         ntccn, nthl, nthnc, ntgv, nthv, ntrz, ntgz, nthz,                                &
         imp_physics, imp_physics_gfdl, imp_physics_thompson, imp_physics_wsm6,           &
         imp_physics_zhao_carr, imp_physics_mg, imp_physics_fer_hires, imp_physics_nssl,  &
+        imp_physics_no, &
         ltaerosol, mraerosol, nssl_ccn_on, nssl_hail_on, nssl_3moment,                   &
         hybedmf, do_shoc, satmedmf, qgrs, vdftra, save_u, save_v, save_t, save_q,        &
         flag_for_pbl_generic_tend, ldiag3d, qdiag3d, lssav, ugrs, vgrs, tgrs, errmsg, errflg)
@@ -30,11 +31,11 @@
       integer, intent(in) :: ntqv, ntcw, ntiw, ntrw, ntsw, ntlnc, ntinc, ntrnc, ntsnc, ntgnc
       integer, intent(in) :: ntwa, ntia, ntgl, ntoz, ntke, ntkev, nqrimef,ntchs, ntchm
       integer, intent(in) :: ntccn, nthl, nthnc, ntgv, nthv, ntrz, ntgz, nthz
-      logical, intent(in) :: trans_aero, ldiag3d, qdiag3d, lssav
+      logical, intent(in) :: trans_aero, ldiag3d, qdiag3d, lssav, trans_ghg
       integer, intent(in) :: imp_physics, imp_physics_gfdl, imp_physics_thompson, imp_physics_wsm6
       integer, intent(in) :: imp_physics_zhao_carr, imp_physics_mg, imp_physics_fer_hires
       logical, intent(in) :: ltaerosol, hybedmf, do_shoc, satmedmf, flag_for_pbl_generic_tend, mraerosol
-      integer, intent(in) :: imp_physics_nssl
+      integer, intent(in) :: imp_physics_nssl, imp_physics_no
       logical, intent(in) :: nssl_hail_on, nssl_ccn_on, nssl_3moment
 
       real(kind=kind_phys), dimension(:,:,:), intent(in) :: qgrs
@@ -267,15 +268,23 @@
             enddo
             
             ENDIF
-
+        
+        else
+           do k=1,levs
+              do i=1,im
+                vdftra(i,k,1)  = qgrs(i,k,ntqv)
+                vdftra(i,k,2)  = qgrs(i,k,ntoz)
+               enddo
+           enddo  
 
         endif
 !
-        if (trans_aero) then
+        if (trans_aero .or. trans_ghg) then
           call set_aerosol_tracer_index(imp_physics, imp_physics_wsm6,          &
                                         imp_physics_thompson, ltaerosol,mraerosol, &
                                         imp_physics_mg, ntgl, imp_physics_gfdl, &
                                         imp_physics_zhao_carr, imp_physics_nssl,&
+                                        imp_physics_no, &
                                         nssl_hail_on, nssl_ccn_on, nssl_3moment, kk, &
                                         errmsg, errflg)
           if (errflg /= 0) return

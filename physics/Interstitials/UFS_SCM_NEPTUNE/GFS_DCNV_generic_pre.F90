@@ -9,7 +9,7 @@
 !! \section arg_table_GFS_DCNV_generic_pre_run Argument Table
 !! \htmlinclude GFS_DCNV_generic_pre_run.html
 !!
-    subroutine GFS_DCNV_generic_pre_run (im, levs, ldiag3d, qdiag3d, do_cnvgwd, cplchm,  &
+    subroutine GFS_DCNV_generic_pre_run (im, levs, ldiag3d, qdiag3d, do_cnvgwd, cplchm, cplghg, &
                                          gu0, gv0, gt0, gq0, nsamftrac, ntqv,            &
                                          save_u, save_v, save_t, save_q, clw,            &
                                          ntcw,ntiw,ntclamt,ntrw,ntsw,ntrnc,ntsnc,ntgl,   &
@@ -25,7 +25,7 @@
       integer, intent(in) :: im, levs, nsamftrac, ntqv, index_of_process_dcnv, dtidx(:,:), &
            ntcw,ntiw,ntclamt,ntrw,ntsw,ntrnc,ntsnc,ntgl,ntrac,ntgnc,nthl,nthnc,nthv,ntgv,  &
            ntrz, ntgz, nthz, ntsigma, ntomega
-      logical, intent(in) :: ldiag3d, qdiag3d, do_cnvgwd, cplchm
+      logical, intent(in) :: ldiag3d, qdiag3d, do_cnvgwd, cplchm, cplghg
       real(kind=kind_phys), dimension(:,:),   intent(in)    :: gu0
       real(kind=kind_phys), dimension(:,:),   intent(in)    :: gv0
       real(kind=kind_phys), dimension(:,:),   intent(in)    :: gt0
@@ -62,7 +62,7 @@
         enddo
       endif
 
-      if ((ldiag3d.and.qdiag3d) .or. cplchm) then
+      if ((ldiag3d.and.qdiag3d) .or. cplchm .or. cplghg) then
          if (cscnv .or. satmedmf .or. trans_trac .or. ras) then
             tracers = 2
             do n=2,ntrac

@@ -109,6 +109,41 @@
   dimensions = ()
   type = integer
   intent = in
+[cplghg]
+  standard_name = flag_for_ghg_coupling
+  long_name = flag controlling cplghg collection (default off)
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = in
+[ntts1mmr]
+  standard_name = index_of_ts1_mass_mixing_ratio
+  long_name = tracer index for ts1 mass mixing ratio
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
+[ntts2mmr]
+  standard_name = index_of_ts2_mass_mixing_ratio
+  long_name = tracer index for ts2 mass mixing ratio
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
+[ntts3mmr]
+  standard_name = index_of_ts3_mass_mixing_ratio
+  long_name = tracer index for ts3 mass mixing ratio
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
+[ntts4mmr]
+  standard_name = index_of_ts4_mass_mixing_ratio
+  long_name = tracer index for ts4 mass mixing ratio
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
 [ntlnc]
   standard_name = index_of_mass_number_concentration_of_cloud_droplets_in_tracer_concentration_array
   long_name = tracer index for liquid number concentration
@@ -193,6 +228,14 @@
   dimensions = ()
   type = integer
   intent = in
+[prsi]
+  standard_name = air_pressure_at_interface
+  long_name = air pressure at model layer interfaces
+  units = Pa
+  dimensions = (horizontal_loop_extent,vertical_interface_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
 [nssl_ccn_on]
   standard_name = nssl_ccn_on
   long_name = CCN activation flag in NSSL micro
@@ -215,6 +258,94 @@
   type = real
   kind = kind_phys
   intent = in
+[con_g]
+  standard_name = gravitational_acceleration
+  long_name = gravitational acceleration
+  units = m s-2
+  dimensions = ()
+  type = real
+  kind = kind_phys
+  intent = in
+[qv_in]
+  standard_name = qv_save
+  long_name = qv before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+[qc_in]
+  standard_name = qc_save
+  long_name = qc before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+[qi_in]
+  standard_name = qi_save
+  long_name = qi before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+[qr_in]
+  standard_name = qr_save
+  long_name = qr before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+[qg_in]
+  standard_name = qg_save
+  long_name = qg before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+[qs_in]
+  standard_name = qs_save
+  long_name = qs before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = in
+[save_ts1col]
+  standard_name = ts1_total_column_save
+  long_name = ts1 total column
+  units = kg m-2
+  dimensions = (horizontal_loop_extent)
+  type = real
+  kind = kind_phys
+  intent = inout
+[save_ts2col]
+  standard_name = ts2_total_column_save
+  long_name = ts2 total column
+  units = kg m-2
+  dimensions = (horizontal_loop_extent)
+  type = real
+  kind = kind_phys
+  intent = inout
+[save_ts3col]
+  standard_name = ts3_total_column_save
+  long_name = ts3 total column
+  units = kg m-2
+  dimensions = (horizontal_loop_extent)
+  type = real
+  kind = kind_phys
+  intent = inout
+[save_ts4col]
+  standard_name = ts4_total_column_save
+  long_name = ts4 total column
+  units = kg m-2
+  dimensions = (horizontal_loop_extent)
+  type = real
+  kind = kind_phys
+  intent = inout
 [save_qc]
   standard_name = cloud_condensed_water_mixing_ratio_save
   long_name = ratio of mass of cloud water to mass of dry air plus vapor (without condensates) before entering a physics scheme

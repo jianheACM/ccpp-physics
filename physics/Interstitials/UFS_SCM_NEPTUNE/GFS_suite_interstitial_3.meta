@@ -211,6 +211,41 @@
   dimensions = ()
   type = integer
   intent = in
+[cplghg]
+  standard_name = flag_for_ghg_coupling
+  long_name = flag controlling cplghg collection (default off)
+  units = flag
+  dimensions = ()
+  type = logical
+  intent = in
+[ntts1mmr]
+  standard_name = index_of_ts1_mass_mixing_ratio
+  long_name = tracer index for ts1 mass mixing ratio
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
+[ntts2mmr]
+  standard_name = index_of_ts2_mass_mixing_ratio
+  long_name = tracer index for ts2 mass mixing ratio
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
+[ntts3mmr]
+  standard_name = index_of_ts3_mass_mixing_ratio
+  long_name = tracer index for ts3 mass mixing ratio
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
+[ntts4mmr]
+  standard_name = index_of_ts4_mass_mixing_ratio
+  long_name = tracer index for ts4 mass mixing ratio
+  units = index
+  dimensions = ()
+  type = integer
+  intent = in
 [xlon]
   standard_name = longitude
   long_name = longitude
@@ -358,6 +393,14 @@
   dimensions = ()
   type = integer
   intent = in
+[con_g]
+  standard_name = gravitational_acceleration
+  long_name = gravitational acceleration
+  units = m s-2
+  dimensions = ()
+  type = real
+  kind = kind_phys
+  intent = in
 [prsi]
   standard_name = air_pressure_at_interface
   long_name = air pressure at model layer interfaces
@@ -478,6 +521,86 @@
   long_name = critical relative humidity
   units = frac
   dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[qv_in]
+  standard_name = qv_save
+  long_name = qv before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[qc_in]
+  standard_name = qc_save
+  long_name = qc before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[qi_in]
+  standard_name = qi_save
+  long_name = qi before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[qr_in]
+  standard_name = qr_save
+  long_name = qr before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[qg_in]
+  standard_name = qg_save
+  long_name = qg before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[qs_in]
+  standard_name = qs_save
+  long_name = qs before convection
+  units = kg kg-1
+  dimensions = (horizontal_loop_extent,vertical_layer_dimension)
+  type = real
+  kind = kind_phys
+  intent = inout
+[save_ts1col]
+  standard_name = ts1_total_column_save
+  long_name = ts1 total column
+  units = kg m-2
+  dimensions = (horizontal_loop_extent)
+  type = real
+  kind = kind_phys
+  intent = inout
+[save_ts2col]
+  standard_name = ts2_total_column_save
+  long_name = ts2 total column
+  units = kg m-2
+  dimensions = (horizontal_loop_extent)
+  type = real
+  kind = kind_phys
+  intent = inout
+[save_ts3col]
+  standard_name = ts3_total_column_save
+  long_name = ts3 total column
+  units = kg m-2
+  dimensions = (horizontal_loop_extent)
+  type = real
+  kind = kind_phys
+  intent = inout
+[save_ts4col]
+  standard_name = ts4_total_column_save
+  long_name = ts4 total column
+  units = kg m-2
+  dimensions = (horizontal_loop_extent)
   type = real
   kind = kind_phys
   intent = inout

@@ -15,6 +15,7 @@
                                           imp_physics_thompson, ltaerosol,mraerosol,   &
                                           imp_physics_mg, ntgl, imp_physics_gfdl, &
                                           imp_physics_zhao_carr, imp_physics_nssl,&
+                                          imp_physics_no, &
                                           nssl_hail_on, nssl_ccn_on, nssl_3moment, kk, &
                                           errmsg, errflg)
       implicit none
@@ -22,7 +23,8 @@
       integer, intent(in )          :: imp_physics, imp_physics_wsm6,          &
                                        imp_physics_thompson,                   &
                                        imp_physics_mg, ntgl, imp_physics_gfdl, &
-                                       imp_physics_zhao_carr,imp_physics_nssl
+                                       imp_physics_zhao_carr,imp_physics_nssl, &
+                                       imp_physics_no
       logical, intent(in )          :: ltaerosol, mraerosol, nssl_hail_on, nssl_ccn_on, nssl_3moment
       integer, intent(out)          :: kk
       character(len=*), intent(out) :: errmsg
@@ -65,6 +67,8 @@
           IF ( nssl_3moment ) kk = kk + 2
         ENDIF
         IF ( nssl_ccn_on ) kk = kk + 1
+      elseif (imp_physics == imp_physics_no) then
+          kk = 3
       else
         write(errmsg,'(*(a))') 'Logic error: unknown microphysics option in set_aerosol_tracer_index'
         kk = -999

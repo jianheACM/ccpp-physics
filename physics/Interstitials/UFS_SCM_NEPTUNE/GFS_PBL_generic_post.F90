@@ -12,8 +12,8 @@
         ntqv, ntcw, ntiw, ntrw, ntsw, ntlnc, ntinc, ntrnc, ntsnc, ntgnc, ntwa, ntia, ntgl, ntoz, ntke, ntkev,nqrimef,          &
         trans_aero, ntchs, ntchm, ntccn, nthl, nthnc, ntgv, nthv, ntrz, ntgz, nthz,                                            &
         imp_physics, imp_physics_gfdl, imp_physics_thompson, imp_physics_wsm6, imp_physics_zhao_carr, imp_physics_mg,          &
-        imp_physics_fer_hires, imp_physics_nssl, nssl_ccn_on, ltaerosol, mraerosol, nssl_hail_on, nssl_3moment,                &
-        cplflx, cplaqm, cplchm, lssav, flag_for_pbl_generic_tend, ldiag3d, lsidea, hybedmf, do_shoc, satmedmf,                 &
+        imp_physics_fer_hires, imp_physics_nssl, imp_physics_no, nssl_ccn_on, ltaerosol, mraerosol, nssl_hail_on, nssl_3moment,                &
+        cplflx, cplaqm, cplchm, cplghg, trans_ghg, lssav, flag_for_pbl_generic_tend, ldiag3d, lsidea, hybedmf, do_shoc, satmedmf,         &
         shinhong, do_ysu, dvdftra, dusfc1, dvsfc1, dtsfc1, dqsfc1, dtf, dudt, dvdt, dtdt, htrsw, htrlw, xmu,                   &
         dqdt, dusfc_cpl, dvsfc_cpl, dtsfc_cpl, dtend, dtidx, index_of_temperature, index_of_x_wind, index_of_y_wind,           &
         index_of_process_pbl, dqsfc_cpl, dusfci_cpl, dvsfci_cpl, dtsfci_cpl, dqsfci_cpl, dusfc_diag, dvsfc_diag, dtsfc_diag,   &
@@ -31,12 +31,12 @@
       integer, intent(in) :: im, levs, nvdiff, ntrac, ntchs, ntchm, kdt
       integer, intent(in) :: ntqv, ntcw, ntiw, ntrw, ntsw, ntlnc, ntinc, ntrnc, ntsnc, ntgnc, ntwa, ntia, ntgl, ntoz, ntke, ntkev, nqrimef
       integer, intent(in) :: ntccn, nthl, nthnc, ntgv, nthv, ntrz, ntgz, nthz
-      logical, intent(in) :: trans_aero
+      logical, intent(in) :: trans_aero, trans_ghg
       integer, intent(in) :: imp_physics, imp_physics_gfdl, imp_physics_thompson, imp_physics_wsm6
       integer, intent(in) :: imp_physics_zhao_carr, imp_physics_mg, imp_physics_fer_hires
-      integer, intent(in) :: imp_physics_nssl
+      integer, intent(in) :: imp_physics_nssl,imp_physics_no
       logical, intent(in) :: nssl_ccn_on, nssl_hail_on, nssl_3moment
-      logical, intent(in) :: ltaerosol, cplflx, cplaqm, cplchm, lssav, ldiag3d, lsidea, use_med_flux, mraerosol
+      logical, intent(in) :: ltaerosol, cplflx, cplaqm, cplchm, cplghg, lssav, ldiag3d, lsidea, use_med_flux, mraerosol
       logical, intent(in) :: hybedmf, do_shoc, satmedmf, shinhong, do_ysu
 
       logical, intent(in) :: flag_for_pbl_generic_tend      
@@ -92,9 +92,10 @@
       errmsg = ''
       errflg = 0
 !GJF: dvdftra is only used if nvdiff != ntrac or (nvdiff == ntrac .and. )
-      if (nvdiff == ntrac .and. (hybedmf .or. do_shoc .or. satmedmf)) then
+      if (nvdiff == ntrac .and. (hybedmf .or. do_shoc .or. satmedmf) .and. (.not. cplghg)) then
         dqdt = dvdftra
-      elseif (nvdiff /= ntrac .and. .not. shinhong .and. .not. do_ysu) then
+      elseif ((nvdiff /= ntrac .and. .not. shinhong .and. .not. do_ysu) &
+       .or.(nvdiff == ntrac .and. cplghg ))then
 !
         if (ntke>0) then
           do k=1,levs
@@ -104,12 +105,13 @@
           enddo
         endif
 !
-        if (trans_aero) then
+        if (trans_aero .or. trans_ghg) then
           ! Set kk if chemistry-aerosol tracers are diffused
           call set_aerosol_tracer_index(imp_physics, imp_physics_wsm6,          &
                                         imp_physics_thompson, ltaerosol,mraerosol,   &
                                         imp_physics_mg, ntgl, imp_physics_gfdl, &
                                         imp_physics_zhao_carr, imp_physics_nssl,&
+                                        imp_physics_no, &
                                         nssl_hail_on, nssl_ccn_on, nssl_3moment, kk, &
                                         errmsg, errflg)
           if (errflg /= 0) return
@@ -318,6 +320,14 @@
             enddo
             
             ENDIF
+         else
+           do k=1,levs
+              do i=1,im
+                dqdt(i,k,ntqv) = dvdftra(i,k,1)
+                dqdt(i,k,ntoz) = dvdftra(i,k,2)
+               enddo
+           enddo
+
         endif
 
       endif ! nvdiff == ntrac

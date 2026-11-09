@@ -12,6 +12,8 @@
       ntrw, ntsw, ntrnc, ntsnc, ntgl, ntgnc, ntlnc, ntinc, ntccn, nn, imp_physics, imp_physics_gfdl, imp_physics_thompson,  &
       imp_physics_nssl, imp_physics_tempo, nssl_invertccn, nssl_ccn_on,                                                  &
       imp_physics_zhao_carr, imp_physics_zhao_carr_pdf, convert_dry_rho, dtf, save_qc, save_qi, con_pi, dtidx, dtend,&
+      qv_in,qc_in,qi_in,qs_in,qr_in,qg_in, &
+      cplghg, ntts1mmr, ntts2mmr, ntts3mmr, ntts4mmr, save_ts1col, save_ts2col, save_ts3col, save_ts4col, prsi, con_g, &
       index_of_process_conv_trans, gq0, clw, prsl, save_tcp, con_rd, con_eps, nssl_cccn, nwfa, spechum, ldiag3d,     &
       qdiag3d, save_lnc, save_inc, ntk, ntke, otsptflag, errmsg, errflg)
 
@@ -36,10 +38,16 @@
       logical,                                  intent(in) :: ltaerosol, convert_dry_rho
       logical,                                  intent(in) :: nssl_ccn_on, nssl_invertccn
 
-      real(kind=kind_phys), intent(in   )                   :: con_pi, dtf
+      real(kind=kind_phys), intent(in   )                   :: con_pi, dtf, con_g
       real(kind=kind_phys), intent(in   ), dimension(:,:)   :: save_qc
       ! save_qi is not allocated for Zhao-Carr MP
       real(kind=kind_phys), intent(in   ), dimension(:,:)   :: save_qi, save_lnc, save_inc
+      real(kind=kind_phys), intent(in   ), dimension(:,:)   :: prsi
+
+      logical,              intent(in   )                   :: cplghg
+      integer,              intent(in   )                   :: ntts1mmr,ntts2mmr,ntts3mmr,ntts4mmr
+      real(kind=kind_phys), intent(in   ), dimension(:)  :: save_ts1col,save_ts2col,save_ts3col,save_ts4col
+      real(kind=kind_phys), intent(in   ), dimension(:,:)   :: qv_in,qc_in,qi_in,qs_in,qr_in,qg_in
 
       ! dtend and dtidx are only allocated if ldiag3d
       logical, intent(in)                                   :: ldiag3d, qdiag3d
@@ -69,6 +77,8 @@
       real(kind=kind_phys), dimension(im,levs) :: qi_mp !< kg kg-1 (dry mixing ratio)
       real(kind=kind_phys), dimension(im,levs) :: nc_mp !< kg-1 (dry mixing ratio)
       real(kind=kind_phys), dimension(im,levs) :: ni_mp !< kg-1 (dry mixing ratio)
+      real(kind=kind_phys), dimension(im,levs) :: delp
+      real(kind=kind_phys), dimension(im)      :: tmp_ts1col,tmp_ts2col,tmp_ts3col,tmp_ts4col
 
       ! Initialize CCPP error handling variables
       errmsg = ''
@@ -311,6 +321,35 @@
           enddo
         enddo
       endif   ! end if_ntcw
+
+
+     !if (cplghg) then
+     !    do k = 1, levs
+     !      do i = 1, im
+     !        delp(i,k) = abs(prsi(i,k) - prsi(i,k+1))
+     !      enddo
+     !    enddo
+ 
+     !    tmp_co2col(:) = sum(gq0(:,:,ntco2mmr)*delp(:,:)/con_g,2)
+     !    tmp_ch4col(:) = sum(gq0(:,:,ntch4mmr)*delp(:,:)/con_g,2)
+     !    tmp_ts1col(:) = sum(gq0(:,:,ntts1mmr)*delp(:,:)/con_g,2)
+     !    tmp_ts2col(:) = sum(gq0(:,:,ntts2mmr)*delp(:,:)/con_g,2)
+         
+     !    do i = 1, im
+     !       gq0(i,:,ntco2mmr) = gq0(i,:,ntco2mmr)/tmp_co2col(i)*save_co2col(i)
+     !       gq0(i,:,ntch4mmr) = gq0(i,:,ntch4mmr)/tmp_ch4col(i)*save_ch4col(i)
+     !       gq0(i,:,ntts1mmr) = gq0(i,:,ntts1mmr)/tmp_ts1col(i)*save_ts1col(i)
+     !       gq0(i,:,ntts2mmr) = gq0(i,:,ntts2mmr)/tmp_ts2col(i)*save_ts2col(i)
+     !    enddo
+
+     !gq0(:,:,1) = qv_in(:,:)
+     !gq0(:,:,ntcw) = qc_in(:,:)
+     !gq0(:,:,ntiw) = qi_in(:,:)
+     !gq0(:,:,ntsw) = qs_in(:,:)
+     !gq0(:,:,ntrw) = qr_in(:,:)
+     !gq0(:,:,ntgl) = qg_in(:,:)
+
+     !endif
 
     end subroutine GFS_suite_interstitial_4_run
 
