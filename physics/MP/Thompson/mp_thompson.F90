@@ -116,7 +116,6 @@ module mp_thompson
                                     ntss4, ntss5, ntsu, ntbcb, ntbcl, ntocb, ntocl
 
          ! Local variables
-!         real(kind_phys) :: aero3d(1:ncol,1:nlev,1:num_aero)         
          !
          real(kind_phys) :: qv(1:ncol,1:nlev)       ! kg kg-1 (water vapor mixing ratio)
          real(kind_phys) :: hgt(1:ncol,1:nlev)      ! m
@@ -683,7 +682,21 @@ module mp_thompson
          new_ni = ni
          new_nr = nr
          new_tgrs = tgrs
-         
+
+         if (is_aerosol_aware .or. merra2_aerosol_aware) then
+            dnc   = 0.0
+            dnwfa = 0.0
+            dnifa = 0.0
+
+            allocate(new_nc(ncol,nlev))
+            allocate(new_nwfa(ncol,nlev))
+            allocate(new_nifa(ncol,nlev))
+
+            new_nc   = nc
+            new_nwfa = nwfa
+            new_nifa = nifa
+         end if
+
          if (first_time_step .and. istep==1 .and. blkno==1) then
             ! Check initialization state
             if (.not.is_initialized) then
@@ -759,12 +772,10 @@ module mp_thompson
           endif    
          end if
 
-         new_spechum = spechum
-         new_qc = qc ; new_qr = qr ; new_qi = qi ; new_qs = qs ; new_qg = qg
-         new_ni = ni ; new_nr = nr
-         new_tgrs = tgrs
-         if (is_aerosol_aware .or. merra2_aerosol_aware .or. gocart_aerosol_aware) then
-           dnc = 0.0 ; dnwfa = 0.0 ; dnifa = 0.0
+         if (gocart_aerosol_aware) then
+           dnc = 0.0
+           dnwfa = 0.0
+           dnifa = 0.0
            allocate(new_nc(ncol,nlev), new_nwfa(ncol,nlev), new_nifa(ncol,nlev))
            new_nc   = nc
            new_nwfa = nwfa    ! host values (old); GOCART values if gocart_aerosol_aware 
@@ -1265,7 +1276,6 @@ module mp_thompson
               aerfld(:,:,15)/0.3232698*8)*1.e15
       end subroutine get_niwfa
 
-!lzhang
 
       subroutine get_aero_int(aerfld, nifa, nwfa, ncol, nlev, &
                  ntdu1, ntdu2, ntdu3, ntdu4, ntdu5, ntss1, ntss2,&
